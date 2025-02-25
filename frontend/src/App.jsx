@@ -5,11 +5,11 @@ import CommandList from './components/CommandList';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('')
-  const sampleCommands = [
+  const [sampleCommands, setSampleCommands] = useState([
     { id: '1', command: 'git status', annotation: 'Check the status of the repository', tags: ['git', 'status'] },
     { id: '2', command: 'npm install', annotation: 'Install all dependencies', tags: ['npm', 'install'] },
     { id: '3', command: 'docker-compose up', annotation: 'Start the Docker containers', tags: ['docker', 'compose'] },
-  ];
+  ]);
 
   const searchInputRef = useRef(null);
 
@@ -28,6 +28,10 @@ function App() {
     };
   }, []);
 
+  const handleClick = () => {
+    setSampleCommands([...sampleCommands, { id: '4', command: 'echo "Hello, world!"', annotation: 'Prints a message to the console', tags: ['echo'] }]);
+  }
+
   return (
     <>
       <div className="app-container">
@@ -45,6 +49,7 @@ function App() {
         <main className="app-main">
           {/* Placeholder for command list */}
           <CommandList commands={sampleCommands} />
+          <button onClick={() => handleClick()}>TEST ADD</button>
         </main>
       </div>
     </>
