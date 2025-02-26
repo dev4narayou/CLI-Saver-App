@@ -77,3 +77,131 @@ body {
   padding: 1rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
+
+/* RegisterForm */
+.register-form {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  padding: 1.5rem;
+  max-width: 400px;
+  margin: 2rem auto;
+}
+
+.register-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* selects children */
+.register-form form > div {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.register-form label {
+  text-align: left;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #bbb;
+  display: block;
+}
+
+.register-form input {
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: none;
+  background-color: #333;
+  color: #fff;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.register-form input:focus {
+  outline: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.register-form button {
+  background: linear-gradient(to right, #4a00e0, #8e2de2);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.register-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.register-form button:active {
+  transform: translateY(0);
+}
+
+/* AuthPage */
+.auth-container {
+  max-width: 450px;
+  margin: 2rem auto;
+}
+
+.auth-toggle {
+  display: flex;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.auth-toggle button {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  background-color: #252525;
+  color: #bbb;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-toggle button.active {
+  background: linear-gradient(to right, #4a00e0, #8e2de2);
+  color: white;
+  font-weight: 600;
+}
+
+.auth-toggle button:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.auth-toggle button:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.auth-form-container {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
