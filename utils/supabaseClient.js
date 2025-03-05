@@ -1,8 +1,8 @@
 const { createClient } = require("@supabase/supabase-js");
 require("dotenv").config();
 
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-const supabaseKey = process.env.REACT_APP_SUPABASE_KEY;
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY; // Use service role key, not anon key
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
