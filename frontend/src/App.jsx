@@ -171,6 +171,17 @@ function App() {
               onChange={(e) => setSearchTerm(e.target.value)}
               ref={searchInputRef}
             />
+            <div className="header-integrations">
+              {/* <div className="api-access">Setup API Access</div> */}
+              <div className="github-logo">
+                <img
+                  src="/github-mark-white.png"
+                  alt="Github logo"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </div>
           </header>
           <main className="app-main">
             {/* Placeholder for command list */}
