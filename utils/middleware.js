@@ -17,9 +17,19 @@ const authenticate = (req, res, next) => {
   }
 
   const token = authHeader.split(" ")[1];
+  console.log("Received token (first 15 chars):", token.substring(0, 15));
 
   try {
+    // verify we're using the correct secret
+    console.log(
+      "Using JWT secret:",
+      process.env.SUPABASE_JWT_SECRET
+        ? "Secret is defined"
+        : "Secret is UNDEFINED"
+    );
+
     const decoded = jwt.verify(token, process.env.SUPABASE_JWT_SECRET);
+    console.log("Token decoded successfully for user ID:", decoded.id);
     req.user = decoded;
     next();
   } catch (error) {

@@ -42,26 +42,26 @@ commandRouter.get("/", authenticate, async (req, res) => {
 
 // adding a new command
 commandRouter.post("/", authenticate, async (req, res) => {
-  const { command } = req.body;
+  const { command, description } = req.body;
 
   try {
-    // Get the current user from Supabase using the token
-    const authHeader = req.headers.authorization;
-    const token = authHeader.split(" ")[1];
-    const { data: userData, error: userError } = await supabase.auth.getUser(
-      token
-    );
+    // The authenticate middleware already verified the token
+    // and put the user info in req.user
+    const userId = req.user.id;
 
-    if (userError || !userData.user) {
-      return res.status(403).json({ error: "Invalid user token" });
-    }
+    const commandType = command.trim().split(" ")[0].toLowerCase();
 
-    const userId = userData.user.id;
-
-    // Insert command with user ID from Auth
+    // Insert command with user ID from the JWT token
     const { data, error } = await supabase
       .from("Commands")
-      .insert([{ command, user_id: userId }])
+      .insert([
+        {
+          command,
+          description: description || null,
+          user_id: userId,
+          command_type: commandType,
+        },
+      ])
       .select();
 
     if (error) {
