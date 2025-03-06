@@ -1,0 +1,22 @@
+{
+  "name": "@dev4narayou/cmd-saver",
+  "version": "1.0.4",
+  "description": "Save CLI commands to Supabase database",
+  "main": "lib/index.js",
+  "bin": {
+    "cmd-saver": "bin/save-cmd.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dev4narayou/CLI-Saver-App.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "dev4narayou",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.8.1",
+    "inquirer": "^8.2.5"
+  }
+}
