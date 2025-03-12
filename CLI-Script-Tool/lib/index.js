@@ -4,6 +4,8 @@ const inquirer = require("inquirer");
 const path = require("path");
 const { execSync } = require("child_process");
 
+const API_BASE_URL = "https://cli-saver-app-e80303b94dbf.herokuapp.com";
+
 // path to the file where tokens will be stored
 const TOKEN_FILE_PATH = path.join(__dirname, "auth.json");
 
@@ -32,7 +34,7 @@ const authenticate = async () => {
   try {
     // request backend for login (no longer supabase)
     const response = await axios.post(
-      "http://localhost:3005/api/auth/login",
+      `${API_BASE_URL}/api/auth/login`,
       {
         email,
         password,
@@ -51,10 +53,21 @@ const authenticate = async () => {
     console.log("Authentication successful!");
     return { access_token, refresh_token };
   } catch (error) {
-    console.error(
-      "Authentication failed:",
-      error.response?.data || error.message
-    );
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error("Authentication failed:", error.response.data);
+      console.error("Status code:", error.response.status);
+      console.error("Headers:", error.response.headers);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error("Authentication failed: No response received from server.");
+      console.error("Request data:", error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error("Authentication failed:", error.message);
+    }
+    console.error("Config:", error.config);
     throw error;
   }
 };
@@ -63,7 +76,7 @@ const authenticate = async () => {
 const refreshAccessToken = async (refreshToken) => {
   try {
     const response = await axios.post(
-      "http://localhost:3005/api/auth/refresh",
+      `${API_BASE_URL}/api/auth/refresh`,
       {
         refresh_token: refreshToken,
       },
@@ -100,7 +113,7 @@ const getAccessToken = async () => {
 
   try {
     // use backend to verify token instead of Supabase directly
-    await axios.get("http://localhost:3005/api/auth/verify", {
+    await axios.get(`${API_BASE_URL}/api/auth/verify`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -130,7 +143,7 @@ const saveCommand = async (command, description) => {
     console.log(`Using token: ${accessToken.substring(0, 15)}...`);
 
     await axios.post(
-      "http://localhost:3005/api/commands",
+      `${API_BASE_URL}/api/commands`,
       {
         command,
         description: description || null,
@@ -144,10 +157,21 @@ const saveCommand = async (command, description) => {
     );
     console.log("Command saved successfully!");
   } catch (error) {
-    console.error(
-      "Error saving command:",
-      error.response?.data || error.message
-    );
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error("Error saving command:", error.response.data);
+      console.error("Status code:", error.response.status);
+      console.error("Headers:", error.response.headers);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error("Error saving command: No response received from server.");
+      console.error("Request data:", error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error("Error saving command:", error.message);
+    }
+    console.error("Config:", error.config);
   }
 };
 
