@@ -81,14 +81,30 @@ function App() {
   };
 
   const getCommands = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    const { data } = await supabase
-      .from("Commands")
-      .select("*")
-      .eq("user_id", user.id);
-    setCommands(data);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        console.log("No user found, cannot fetch commands");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("Commands")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Error fetching commands:", error);
+        return;
+      }
+
+      setCommands(data || []);
+    } catch (error) {
+      console.error("Error in getCommands:", error);
+    }
   };
 
   const filteredCommands = useMemo(() => {
@@ -171,7 +187,15 @@ function App() {
     }
   };
 
-  // listen for auth state changes
+  useEffect(() => {
+    if (session) {
+      getCommands();
+    } else {
+      setCommands([]);
+    }
+  }, [session]);
+
+  // set up supabase auth listener
   useEffect(() => {
     // set initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -189,11 +213,6 @@ function App() {
         data.subscription.unsubscribe();
       }
     };
-  }, []);
-
-  // fetch commands on initial render
-  useEffect(() => {
-    getCommands();
   }, []);
 
   useEffect(() => {
