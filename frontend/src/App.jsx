@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, use } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import "./App.css";
 import "./components/CommandList";
 import AuthPage from "./components/AuthPage";
@@ -14,7 +14,12 @@ const supabase = createClient(
 );
 
 function App() {
+  // states for filtering
   const [searchTerm, setSearchTerm] = useState("");
+  const [dateFilter, setDateFilter] = useState("all"); // "all", "today", "week", "month"
+  const [showStarredOnly, setShowStarredOnly] = useState(false);
+
+  // existing states
   const [sampleCommands, setSampleCommands] = useState([
     {
       id: "1",
@@ -37,6 +42,8 @@ function App() {
   ]);
   const [commands, setCommands] = useState([]);
   const [session, setSession] = useState(null);
+
+  const searchInputRef = useRef(null);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -74,13 +81,80 @@ function App() {
       data: { user },
     } = await supabase.auth.getUser();
     const { data } = await supabase
-      .from('Commands')
-      .select('*')
-      .eq('user_id', user.id);
+      .from("Commands")
+      .select("*")
+      .eq("user_id", user.id);
     setCommands(data);
   };
 
-  const searchInputRef = useRef(null);
+  const filteredCommands = useMemo(() => {
+    if (!commands || commands.length === 0) return [];
+
+    return commands.filter((cmd) => {
+      // filter by search term
+      const matchesSearch =
+        searchTerm === "" ||
+        cmd.command.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (cmd.description &&
+          cmd.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (cmd.annotation &&
+          cmd.annotation.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      // filter by date
+      let matchesDate = true;
+      if (dateFilter !== "all" && cmd.created_at) {
+        const cmdDate = new Date(cmd.created_at);
+        const now = new Date();
+
+        if (dateFilter === "today") {
+          // check if command was created today
+          matchesDate = cmdDate.toDateString() === now.toDateString();
+        } else if (dateFilter === "week") {
+          // check if command was created within the last 7 days
+          const weekAgo = new Date(now);
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          matchesDate = cmdDate >= weekAgo;
+        } else if (dateFilter === "month") {
+          // check if command was created within the last 30 days
+          const monthAgo = new Date(now);
+          monthAgo.setDate(monthAgo.getDate() - 30);
+          matchesDate = cmdDate >= monthAgo;
+        }
+      }
+
+      // filter by starred status
+      const matchesStarred = !showStarredOnly || cmd.is_starred;
+
+      return matchesSearch && matchesDate && matchesStarred;
+    });
+  }, [commands, searchTerm, dateFilter, showStarredOnly]);
+
+  // function to toggle star status of a command
+  const toggleStar = async (id) => {
+    try {
+      const commandToUpdate = commands.find((cmd) => cmd.id === id);
+      if (!commandToUpdate) return;
+
+      const newStarredStatus = !commandToUpdate.is_starred;
+
+      // update in Supabase
+      const { error } = await supabase
+        .from("Commands")
+        .update({ is_starred: newStarredStatus })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      // update local state
+      setCommands(
+        commands.map((cmd) =>
+          cmd.id === id ? { ...cmd, is_starred: newStarredStatus } : cmd
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling star:", error);
+    }
+  };
 
   // listen for auth state changes
   useEffect(() => {
@@ -102,6 +176,7 @@ function App() {
     };
   }, []);
 
+  // fetch commands on initial render
   useEffect(() => {
     getCommands();
   }, []);
@@ -110,10 +185,10 @@ function App() {
     if (!session) {
       return;
     }
-    // Focus on input when component mounts
+    // focus on input when component mounts
     searchInputRef.current?.focus();
 
-    // Re-focus when the window regains focus (e.g., after alt+tab)
+    // re-focus when the window regains focus (e.g., after alt+tab)
     const handleWindowFocus = () => {
       searchInputRef.current?.focus();
     };
@@ -139,16 +214,14 @@ function App() {
   // TESTING
   const submitCommand = async (event) => {
     event.preventDefault();
-    const res = await supabase
-      .from('Commands')
-      .insert([
-        {
-          user_id: session.user.id,
-          command: event.target.command.value,
-        },
-      ])
+    const res = await supabase.from("Commands").insert([
+      {
+        user_id: session.user.id,
+        command: event.target.command.value,
+      },
+    ]);
     console.log(res);
-    console.log("submitted command")
+    console.log("submitted command");
   };
 
   // END TESTING
@@ -171,8 +244,33 @@ function App() {
               onChange={(e) => setSearchTerm(e.target.value)}
               ref={searchInputRef}
             />
+            <div className="filter-options">
+              <div className="filter-group">
+                <label>Date:</label>
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="all">All Time</option>
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={showStarredOnly}
+                    onChange={(e) => setShowStarredOnly(e.target.checked)}
+                  />
+                  Starred Only
+                </label>
+              </div>
+            </div>
             <div className="header-integrations">
-              {/* <div className="api-access">Setup API Access</div> */}
               <div className="github-logo">
                 <img
                   src="/github-mark-white.png"
@@ -184,38 +282,10 @@ function App() {
             </div>
           </header>
           <main className="app-main">
-            {/* Placeholder for command list */}
-            <CommandList commands={commands} />
-
-            <div id="testing">
-              <h2>⬇️ Testing below here ⬇️</h2>
-              <button onClick={() => handleClick()}>TEST ADD</button>
-              <form onSubmit={submitCommand}>
-                <label htmlFor="command"> command </label>
-                <input type="text" id="command" name="command" />
-                <button type="submit">Submit</button>
-              </form>
-              <button
-                onClick={async () => {
-                  try {
-                    const { error } = await supabase.auth.signOut();
-                    if (error) {
-                      console.error("Error signing out:", error);
-                      // Optionally, show an error message to the user
-                    } else {
-                      console.log("Successfully signed out");
-                      setSession(null); // Explicitly update local state
-                      // Optionally, redirect the user or update the UI
-                    }
-                  } catch (err) {
-                    console.error("Unexpected error:", err);
-                    // Optionally, show an error message to the user
-                  }
-                }}
-              >
-                logout
-              </button>
-            </div>
+            <CommandList
+              commands={filteredCommands}
+              onToggleStar={toggleStar}
+            />
           </main>
         </div>
       )}

@@ -100,8 +100,166 @@ body {
   margin-bottom: 0.75rem;
   padding: 1rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
+.command-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.command-item:active {
+  transform: translateY(0);
+}
+
+.command-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.command-type {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: white;
+}
+
+.command-date {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.command {
+  background-color: #2a2a2a;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  position: relative;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.command-text {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  color: #e0e0e0;
+  display: block;
+  line-height: 1.5;
+}
+
+.command-description {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+  line-height: 1.4;
+}
+
+.copy-indicator {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.copy-indicator.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Filter options */
+.filter-options {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+}
+
+.filter-group label {
+  color: #fff;
+  margin-right: 0.5rem;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+}
+
+.filter-select {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.filter-group input[type="checkbox"] {
+  margin-right: 0.4rem;
+}
+
+/* Command actions */
+.command-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Star button */
+.star-button {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.star-button:hover {
+  color: #ffb400;
+  transform: scale(1.2);
+}
+
+.star-button.starred {
+  color: #ffb400;
+}
+
+/* No commands message */
+.no-commands {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  color: #aaa;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.no-commands p {
+  margin: 0;
+  font-size: 1.1rem;
+}
 
 /* RegisterForm */
 .register-form {
