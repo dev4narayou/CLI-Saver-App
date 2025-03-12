@@ -156,6 +156,17 @@ function App() {
     }
   };
 
+  // Add handleLogout function
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      console.log("Logged out successfully");
+      // The session will be automatically updated by the onAuthStateChange listener
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
   // listen for auth state changes
   useEffect(() => {
     // set initial session
@@ -235,52 +246,109 @@ function App() {
       {session && (
         <div className="app-container">
           <header className="app-header">
-            <h1>Command Saving App</h1>
-            <input
-              type="text"
-              placeholder="Search for your saved commands..."
-              className="main-search-bar"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              ref={searchInputRef}
-            />
-            <div className="filter-options">
-              <div className="filter-group">
-                <label>Date:</label>
-                <select
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Time</option>
-                  <option value="today">Today</option>
-                  <option value="week">This Week</option>
-                  <option value="month">This Month</option>
-                </select>
+            <div className="header-top">
+              <div className="logo-section">
+                <h1>Command Saver</h1>
+                <span className="app-version">Beta</span>
               </div>
 
-              <div className="filter-group">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={showStarredOnly}
-                    onChange={(e) => setShowStarredOnly(e.target.checked)}
-                  />
-                  Starred Only
-                </label>
+              <div className="user-section">
+                <span className="user-email">{session.user.email}</span>
+                <button
+                  className="logout-button"
+                  onClick={handleLogout}
+                  aria-label="Log out"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                  </svg>
+                  <span>Logout</span>
+                </button>
               </div>
             </div>
-            <div className="header-integrations">
-              <div className="github-logo">
-                <img
-                  src="/github-mark-white.png"
-                  alt="Github logo"
-                  width="24"
-                  height="24"
+
+            <div className="search-section">
+              <div className="search-wrapper">
+                <svg
+                  className="search-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search for your saved commands..."
+                  className="main-search-bar"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  ref={searchInputRef}
                 />
               </div>
             </div>
+
+            <div className="filter-bar">
+              <div className="filter-options">
+                <div className="filter-group">
+                  <label>Date:</label>
+                  <select
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                  </select>
+                </div>
+
+                <div className="filter-group starred-filter">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={showStarredOnly}
+                      onChange={(e) => setShowStarredOnly(e.target.checked)}
+                    />
+                    <span>Starred Only</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="github-link">
+                <a
+                  href="https://github.com/dev4narayou/CLI-Saver-App"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src="/github-mark-white.png"
+                    alt="Github repository"
+                    width="20"
+                    height="20"
+                  />
+                  <span>View on GitHub</span>
+                </a>
+              </div>
+            </div>
           </header>
+
           <main className="app-main">
             <CommandList
               commands={filteredCommands}
