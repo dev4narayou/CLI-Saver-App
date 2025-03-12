@@ -42,12 +42,13 @@ function App() {
   ]);
   const [commands, setCommands] = useState([]);
   const [session, setSession] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const searchInputRef = useRef(null);
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    // login from frontend
+    setErrorMessage(""); // Clear previous error message
     const res = await supabase.auth.signInWithPassword({
       email: event.target.email.value,
       password: event.target.password.value,
@@ -59,20 +60,23 @@ function App() {
     }
     if (error) {
       console.error("Login failed:", error);
+      setErrorMessage("Login failed: " + error.message);
     }
   };
 
   const handleRegister = async (event) => {
     event.preventDefault();
+    setErrorMessage(""); // Clear previous error message
     const { data, error } = await supabase.auth.signUp({
       email: event.target.email.value,
       password: event.target.password.value,
     });
     if (data) {
-      console.log("Registration successful:");
+      console.log("Registration successful:", data);
     }
     if (error) {
       console.error("Registration failed:", error);
+      setErrorMessage("Registration failed: " + error.message);
     }
   };
 
@@ -243,6 +247,7 @@ function App() {
       {!session && (
         <AuthPage handleLogin={handleLogin} handleRegister={handleRegister} />
       )}
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       {session && (
         <div className="app-container">
           <header className="app-header">
