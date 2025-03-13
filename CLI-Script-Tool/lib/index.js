@@ -234,11 +234,105 @@ const getLastBashCommand = () => {
   }
 };
 
+// check and suggest history configuration
+const suggestHistoryConfiguration = async () => {
+  const isWindows = process.platform === "win32";
+  const isGitBash = isWindows && (process.env.TERM || "").includes("xterm");
+
+  if (isWindows && !isGitBash) {
+    console.log(
+      "\n📝 NOTE: On Windows, command history retrieval may be limited."
+    );
+    console.log(
+      "For best results, provide the command explicitly when running save-cmd.\n"
+    );
+    return;
+  }
+
+  // check .bashrc
+  try {
+    const homeDir = process.env.HOME || process.env.USERPROFILE;
+    const bashrcPath = path.join(homeDir, ".bashrc");
+    const bashProfilePath = path.join(homeDir, ".bash_profile");
+
+    let configFound = false;
+    let configPath = null;
+
+    // check .bashrc if it exists
+    if (fs.existsSync(bashrcPath)) {
+      const bashrcContent = fs.readFileSync(bashrcPath, "utf-8");
+      if (
+        bashrcContent.includes('PROMPT_COMMAND="history -a"') ||
+        bashrcContent.includes("PROMPT_COMMAND='history -a'") ||
+        bashrcContent.includes("PROMPT_COMMAND=history -a")
+      ) {
+        configFound = true;
+      } else {
+        configPath = bashrcPath;
+      }
+    }
+
+    // check .bash_profile if it exists and we haven't found the config yet
+    if (!configFound && fs.existsSync(bashProfilePath)) {
+      const profileContent = fs.readFileSync(bashProfilePath, "utf-8");
+      if (
+        profileContent.includes('PROMPT_COMMAND="history -a"') ||
+        profileContent.includes("PROMPT_COMMAND='history -a'") ||
+        profileContent.includes("PROMPT_COMMAND=history -a")
+      ) {
+        configFound = true;
+      } else if (!configPath) {
+        configPath = bashProfilePath;
+      }
+    }
+
+    // if we didn't find the configuration, suggest adding it
+    if (!configFound && configPath) {
+      console.log(
+        "\n📝 For better command history tracking, we recommend adding:"
+      );
+      console.log('\x1b[33mPROMPT_COMMAND="history -a"\x1b[0m');
+      console.log(`to your ${configPath}`);
+
+      const { shouldModify } = await inquirer.prompt([
+        {
+          type: "confirm",
+          name: "shouldModify",
+          message: `Would you like to add this configuration to ${configPath} now?`,
+          default: true,
+        },
+      ]);
+
+      if (shouldModify) {
+        try {
+          fs.appendFileSync(
+            configPath,
+            '\n\n# Added by CLI-Saver for better command history tracking\nPROMPT_COMMAND="history -a"\n'
+          );
+          console.log(`\n✅ Configuration added to ${configPath}`);
+          console.log("Please restart your terminal or run:");
+          console.log(`\x1b[33msource ${configPath}\x1b[0m`);
+          console.log("for the changes to take effect.\n");
+        } catch (err) {
+          console.log(
+            `\n⚠️ Could not modify ${configPath}. Please add the line manually.`
+          );
+        }
+      } else {
+        console.log("\nNo problem! You can add it manually later if you want.");
+      }
+    }
+  } catch (error) {
+    // silently fail - don't let this prevent the main functionality
+  }
+};
+
 const main = async () => {
   try {
-    // check if a command was passed as an argument
+    // always check if history configuration is optimal
+    await suggestHistoryConfiguration();
+
     const cmdArg = process.argv[2];
-    // use command line argument first, then fall back to history
     const lastCommand = cmdArg || getLastBashCommand();
 
     const answers = await inquirer.prompt([
