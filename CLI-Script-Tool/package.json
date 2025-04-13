@@ -1,10 +1,10 @@
 {
   "name": "@dev4narayou/cmd-saver",
-  "version": "1.0.8",
+  "version": "1.0.14",
   "description": "Save CLI commands to Supabase database",
   "main": "lib/index.js",
   "bin": {
-    "cmd-saver": "bin/save-cmd.sh"
+    "cmd-saver": "./bin/cmd-saver.js"
   },
   "repository": {
     "type": "git",

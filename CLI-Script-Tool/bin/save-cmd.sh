@@ -4,7 +4,7 @@
 history -a
 
 # try to find history file
-HISTORY_FILE=${HISTFILE:-~/.bash_history}
+HISTORY_FILE="${HISTFILE:-$HOME/.bash_history}"
 
 if [ -f "$HISTORY_FILE" ]; then
   # find the most recent command that's not 'cmd-saver'
